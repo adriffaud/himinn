@@ -17,7 +17,9 @@ defmodule HiminnWeb.Router do
   scope "/", HiminnWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live_session :default do
+      live "/", PageLive.Home, :index
+    end
   end
 
   # Other scopes may use custom stacks.

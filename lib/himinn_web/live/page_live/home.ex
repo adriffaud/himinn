@@ -1,13 +1,40 @@
 defmodule HiminnWeb.PageLive.Home do
   use HiminnWeb, :live_view
 
-  alias Himinn.Places
+  alias Himinn.{Forecast, Places}
 
   require Logger
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :results, [])}
+    socket =
+      socket
+      |> assign(:results, [])
+      |> assign(:place_slug, "")
+      |> assign(:place, nil)
+      |> assign(:forecast, nil)
+
+    {:ok, socket}
+  end
+
+  @impl true
+  def handle_params(%{"place" => slug}, _, socket) do
+    Logger.debug("🔎 Loading place #{slug}")
+    place = Places.getCoordsFromSlug(slug)
+    forecast = Forecast.get_forecast(place.lat, place.lon)
+
+    socket =
+      socket
+      |> assign(:place_slug, slug)
+      |> assign(:place, place)
+      |> assign(:forecast, forecast)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_params(%{}, _, socket) do
+    {:noreply, socket}
   end
 
   @impl true
@@ -78,13 +105,23 @@ defmodule HiminnWeb.PageLive.Home do
                 navigate={~p"/places/#{place.slug}"}
                 class="block p-4 hover:bg-slate-800 focus:outline-none focus:bg-slate-100 focus:text-sky-800"
               >
-                {place.name}
+                {place.name} ({build_place_details(place)})
               </.link>
             </li>
           <% end %>
         </ul>
       </form>
+      <div :if={@place != nil}>
+        <h1 class="text-lg font-bold">{@place.name} ({build_place_details(@place)})</h1>
+        <span>{inspect(@forecast)}</span>
+      </div>
     </div>
     """
+  end
+
+  defp build_place_details(place) do
+    [place.county, place.country_code]
+    |> Enum.filter(&(String.length(&1) > 0))
+    |> Enum.join(" - ")
   end
 end

@@ -10,6 +10,16 @@ defmodule Himinn.Places do
     |> build_url()
     |> Req.get()
     |> parse_response()
+    |> Enum.sort_by(& &1.country_code)
+  end
+
+  def getCoordsFromSlug(slug) do
+    [id, name] = String.split(slug, "-", parts: 2)
+    Logger.debug("Getting coords for #{slug}")
+
+    name
+    |> search()
+    |> Enum.find(fn place -> place.id == String.to_integer(id) end)
   end
 
   defp build_url(query) do
@@ -23,7 +33,7 @@ defmodule Himinn.Places do
   end
 
   defp parse_response({:ok, resp}) do
-    Logger.debug("✅ Response: #{inspect(resp.body)}")
+    Logger.debug("✅ Photon API response OK")
 
     resp.body
     |> Map.get("features")
@@ -32,12 +42,25 @@ defmodule Himinn.Places do
 
   defp map_feature(feature) do
     %{
-      "properties" => %{"name" => name, "osm_id" => id},
+      "properties" =>
+        %{
+          "name" => name,
+          "osm_id" => id,
+          "countrycode" => country_code
+        } = properties,
       "geometry" => %{"coordinates" => [lon, lat]}
     } = feature
 
     slug = Enum.join([to_string(id), Slug.slugify(name)], "-")
 
-    %{id: id, slug: slug, name: name, lat: lat, lon: lon}
+    %{
+      id: id,
+      slug: slug,
+      name: name,
+      lat: lat,
+      lon: lon,
+      country_code: country_code,
+      county: Map.get(properties, "county", "")
+    }
   end
 end

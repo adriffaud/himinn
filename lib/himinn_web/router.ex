@@ -19,6 +19,7 @@ defmodule HiminnWeb.Router do
 
     live_session :default do
       live "/", PageLive.Home, :index
+      live "/places/:place", PageLive.Home, :index
     end
   end
 

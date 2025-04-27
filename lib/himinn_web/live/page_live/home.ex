@@ -111,9 +111,9 @@ defmodule HiminnWeb.PageLive.Home do
           <% end %>
         </ul>
       </form>
-      <div :if={@place != nil}>
+      <div :if={@place != nil} class="pt-8">
         <h1 class="text-lg font-bold">{@place.name} ({build_place_details(@place)})</h1>
-        <span>{inspect(@forecast)}</span>
+        <span>{format_forecast(@forecast)}</span>
       </div>
     </div>
     """
@@ -123,5 +123,36 @@ defmodule HiminnWeb.PageLive.Home do
     [place.county, place.country_code]
     |> Enum.filter(&(String.length(&1) > 0))
     |> Enum.join(" - ")
+  end
+
+  defp format_forecast(nil), do: "No forecast available"
+
+  defp format_forecast(forecast) do
+    hourly = Map.get(forecast, "hourly", %{}) |> dbg()
+    times = Map.get(hourly, "time", [])
+
+    Enum.reduce(0..(length(times) - 1), %{}, fn index, acc ->
+      time = Enum.at(times, index)
+
+      hourly_data =
+        %{
+          "clouds" => hourly |> Map.get("cloud_cover") |> Enum.at(index),
+          "clouds_high" => hourly |> Map.get("cloud_cover_high") |> Enum.at(index),
+          "clouds_low" => hourly |> Map.get("cloud_cover_low") |> Enum.at(index),
+          "clouds_mid" => hourly |> Map.get("cloud_cover_mid") |> Enum.at(index),
+          "temp" => hourly |> Map.get("temperature_2m") |> Enum.at(index),
+          "wind_speed" => hourly |> Map.get("wind_speed_10m") |> Enum.at(index),
+          "wind_direction" => hourly |> Map.get("wind_direction_10m") |> Enum.at(index),
+          "humidity" => hourly |> Map.get("relative_humidity_2m") |> Enum.at(index),
+          "dewpoint" => hourly |> Map.get("dew_point_2m") |> Enum.at(index),
+          "precip" => hourly |> Map.get("precipitation_probability") |> Enum.at(index)
+        }
+        |> dbg()
+
+      Map.put(acc, time, hourly_data)
+    end)
+    |> dbg()
+
+    "Forecast"
   end
 end

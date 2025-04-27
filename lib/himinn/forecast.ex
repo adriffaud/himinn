@@ -23,7 +23,6 @@ defmodule Himinn.Forecast do
     "#{@open_meteo_base}?#{params}"
     |> Req.get()
     |> parse_response()
-    |> dbg()
   end
 
   defp parse_response({:error, err}) do

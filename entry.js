@@ -1,14 +1,10 @@
-import {
-  debounce,
-  formatTimeHHMM,
-  html,
-  getWeatherTimestamp,
-} from "./utils.js";
+import { debounce, formatTimeHHMM, html } from "./utils.js";
 import { getLocations } from "./location.js";
 import { getWeatherData, calculateExtremeCloudCover } from "./weather.js";
 import { calculateAstronomicalNightPeriod } from "./astro.js";
+import constants from "./constants.js";
 
-const REFRESH_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
+const { REFRESH_INTERVAL_MS, CACHE_TIMESTAMP_KEY } = constants;
 
 const searchResultsContainer = document.getElementById("result");
 const locationSearchInput = document.getElementById("place_search");
@@ -79,11 +75,13 @@ async function displayLocationWeather(location) {
       .map(renderHourlyForecast)
       .join("");
 
+    const cacheTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+
     locationInfoElement.innerHTML = html`
       <h1>${location.name}</h1>
       <small>
         Last update:
-        ${formatTimeHHMM(new Date(parseInt(getWeatherTimestamp()))) ||
+        ${formatTimeHHMM(new Date(parseInt(cacheTimestamp))) ||
         new Date(getWeatherTimestamp())}
       </small>
       <p>

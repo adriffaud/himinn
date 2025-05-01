@@ -1,19 +1,21 @@
-import { getWeatherTimestamp } from "./utils.js";
+import constants from "./constants.js";
 
-const OPEN_METEO_API_BASE_URL = "https://api.open-meteo.com/v1/forecast";
-
-// Cache constants
-const CACHE_KEY = "weather";
-const CACHE_EXPIRATION_MS = 60 * 60 * 1000; // 1 hour
+const {
+  OPEN_METEO_API_BASE_URL,
+  CACHE_KEY,
+  CACHE_EXPIRATION_MS,
+  CACHE_TIMESTAMP_KEY,
+} = constants;
 
 export async function getWeatherData(location) {
   const cachedData = localStorage.getItem(CACHE_KEY);
 
   if (cachedData) {
     const weatherCache = JSON.parse(cachedData);
+    const cacheTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
     const currentTimeMs = new Date().getTime();
 
-    if (currentTimeMs - getWeatherTimestamp() < CACHE_EXPIRATION_MS) {
+    if (currentTimeMs - cacheTimestamp < CACHE_EXPIRATION_MS) {
       console.log("Using cached weather data");
       return weatherCache;
     }

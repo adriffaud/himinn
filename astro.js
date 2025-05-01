@@ -1,5 +1,6 @@
-const ASTRONOMICAL_DUSK_OFFSET_MS = 2 * 60 * 60 * 1000; // 2 hours
-const ASTRONOMICAL_DAWN_OFFSET_MS = -2 * 60 * 60 * 1000; // -2 hours
+import constants from "./constants.js";
+
+const { ASTRONOMICAL_DAWN_OFFSET_MS, ASTRONOMICAL_DUSK_OFFSET_MS } = constants;
 
 export function calculateAstronomicalNightPeriod(weatherData) {
   const currentDateTime = new Date();

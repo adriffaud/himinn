@@ -1,4 +1,6 @@
-const PHOTON_API_BASE_URL = "https://photon.komoot.io/api";
+import constants from "./constants.js";
+
+const { PHOTON_API_BASE_URL } = constants;
 
 function mapLocationResult(location) {
   const name = location.properties.name;

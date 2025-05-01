@@ -25,23 +25,13 @@ function startRefreshTimer(location) {
   }, REFRESH_INTERVAL_MS);
 }
 
-function selectLocation(location) {
-  localStorage.setItem("selectedLocation", JSON.stringify(location));
-  searchResultsContainer.textContent = "";
-  displayLocationWeather(location);
-}
-
 function renderHourlyForecast(forecast) {
   return html`
     <tr>
       <td>${forecast.hour.toString()}h</td>
       <td>${forecast.clouds.toString()}%</td>
       <td>${forecast.precipitation.toString()}%</td>
-      <td
-        style="background-color: var(--ctp-red); color: var(--ctp-crust); font-weight: bold;"
-      >
-        TODO
-      </td>
+      <td style="display:none">TODO</td>
       <td>${forecast.windSpeed}km/h</td>
       <td>${forecast.humidty}%</td>
       <td>${forecast.temperature}°C</td>
@@ -92,26 +82,26 @@ async function displayLocationWeather(location) {
     locationInfoElement.innerHTML = html`
       <h1>${location.name}</h1>
       <small>
-        Dernière mise à jour :
+        Last update:
         ${formatTimeHHMM(new Date(parseInt(getWeatherTimestamp()))) ||
         new Date(getWeatherTimestamp())}
       </small>
       <p>
-        Nuit astro : ${formatTimeHHMM(eveningSunsetTime)} -
+        Night period: ${formatTimeHHMM(eveningSunsetTime)} -
         ${formatTimeHHMM(morningSunriseTime)}
       </p>
       <div class="night-overview"></div>
       <table class="hourly-forecast">
         <thead>
           <tr>
-            <th>Heure</th>
-            <th>Nuages</th>
-            <th>Précipitations</th>
-            <th>Seeing</th>
-            <th>Vent</th>
-            <th>Humidité</th>
-            <th>Température</th>
-            <th>Point de rosée</th>
+            <th>Hour</th>
+            <th>Clouds</th>
+            <th>Precipitations</th>
+            <th style="display: none">Seeing</th>
+            <th>Wind</th>
+            <th>Humidity</th>
+            <th>Temperature</th>
+            <th>Dew point</th>
           </tr>
         </thead>
         <tbody>
@@ -123,6 +113,12 @@ async function displayLocationWeather(location) {
     locationInfoElement.innerHTML = `<h1>${location.name}</h1><p>Error loading weather data: ${error.message}</p>`;
     console.error("Error loading weather data:", error);
   }
+}
+
+function selectLocation(location) {
+  localStorage.setItem("selectedLocation", JSON.stringify(location));
+  searchResultsContainer.textContent = "";
+  displayLocationWeather(location);
 }
 
 async function handleLocationSearch(event) {

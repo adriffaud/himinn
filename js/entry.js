@@ -1,4 +1,4 @@
-import { debounce, formatTimeHHMM, html } from "./utils.js";
+import { debounce, formatTime, html } from "./utils.js";
 import { getLocations } from "./location.js";
 import { getWeatherData, calculateExtremeCloudCover } from "./weather.js";
 import { calculateAstronomicalNightPeriod } from "./astro.js";
@@ -80,13 +80,11 @@ async function displayLocationWeather(location) {
     locationInfoElement.innerHTML = html`
       <h1>${location.name}</h1>
       <small>
-        Last update:
-        ${formatTimeHHMM(new Date(parseInt(cacheTimestamp))) ||
-        new Date(getWeatherTimestamp())}
+        Last update: ${formatTime(new Date(parseInt(cacheTimestamp)))}
       </small>
       <p>
-        Night period: ${formatTimeHHMM(eveningSunsetTime)} -
-        ${formatTimeHHMM(morningSunriseTime)}
+        Night period: ${formatTime(eveningSunsetTime)} -
+        ${formatTime(morningSunriseTime)}
       </p>
       <div class="night-overview"></div>
       <table class="hourly-forecast">

@@ -8,8 +8,11 @@ export function debounce(funcToDebounce, delayMs) {
   };
 }
 
-export function formatTimeHHMM(dateTime) {
-  return `${dateTime.getHours()}h${dateTime.getMinutes().toString().padStart(2, "0")}`;
+export function formatTime(dateTime) {
+  return dateTime.toLocaleTimeString(navigator.language, {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 export function html(strings, ...values) {

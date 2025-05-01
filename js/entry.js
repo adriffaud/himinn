@@ -29,7 +29,7 @@ function renderHourlyForecast(forecast) {
       <td>${forecast.precipitation.toString()}%</td>
       <td style="display:none">TODO</td>
       <td>${forecast.windSpeed}km/h</td>
-      <td>${forecast.humidty}%</td>
+      <td>${forecast.humidity}%</td>
       <td>${forecast.temperature}°C</td>
       <td>${forecast.dewPoint}°C</td>
     </tr>
@@ -53,7 +53,7 @@ async function displayLocationWeather(location) {
       temperature: weatherData.hourly.temperature_2m[index],
       windSpeed: weatherData.hourly.wind_speed_10m[index],
       windDirection: weatherData.hourly.wind_direction_10m[index],
-      humidty: weatherData.hourly.relative_humidity_2m[index],
+      humidity: weatherData.hourly.relative_humidity_2m[index],
       dewPoint: weatherData.hourly.dew_point_2m[index],
       precipitation: weatherData.hourly.precipitation_probability[index],
     }));

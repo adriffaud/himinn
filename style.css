@@ -111,3 +111,23 @@ table.hourly-forecast {
         background-color: var(--ctp-surface1);
     }
 }
+
+.footer {
+    margin-top: 2rem;
+    padding: 1rem 0;
+    text-align: center;
+    border-top: 1px solid var(--ctp-surface1);
+    color: var(--ctp-subtext0);
+    font-size: 0.9rem;
+
+    & a {
+        color: var(--ctp-blue);
+        text-decoration: none;
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: var(--ctp-lavender);
+            text-decoration: underline;
+        }
+    }
+}

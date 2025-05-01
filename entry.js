@@ -1,36 +1,18 @@
+import {
+  debounce,
+  formatTimeHHMM,
+  html,
+  getWeatherTimestamp,
+} from "./utils.js";
+import { getWeatherData } from "./weather.js";
+
 const PHOTON_API_BASE_URL = "https://photon.komoot.io/api";
-const OPEN_METEO_API_BASE_URL = "https://api.open-meteo.com/v1/forecast";
 
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
-
-// Cache constants
-const CACHE_TIMESTAMP_KEY = "weather_timestamp";
-const CACHE_KEY = "weather";
-const CACHE_EXPIRATION_MS = 60 * 60 * 1000; // 1 hour
 
 const searchResultsContainer = document.getElementById("result");
 const locationSearchInput = document.getElementById("place_search");
 let refreshTimerId = null;
-
-function debounce(funcToDebounce, delayMs) {
-  let timeoutId;
-  return function (...args) {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      funcToDebounce.apply(this, args);
-    }, delayMs);
-  };
-}
-
-function formatTimeHHMM(dateTime) {
-  return `${dateTime.getHours()}h${dateTime.getMinutes().toString().padStart(2, "0")}`;
-}
-
-function html(strings, ...values) {
-  return strings.reduce((result, string, i) => {
-    return result + string + (values[i] || "");
-  }, "");
-}
 
 function startRefreshTimer(location) {
   if (refreshTimerId) {
@@ -47,61 +29,6 @@ function selectLocation(location) {
   localStorage.setItem("selectedLocation", JSON.stringify(location));
   searchResultsContainer.textContent = "";
   displayLocationWeather(location);
-}
-
-function getWeatherTimestamp() {
-  return localStorage.getItem(CACHE_TIMESTAMP_KEY);
-}
-
-async function getWeatherData(location) {
-  const cachedData = localStorage.getItem(CACHE_KEY);
-
-  if (cachedData) {
-    const weatherCache = JSON.parse(cachedData);
-    const currentTimeMs = new Date().getTime();
-
-    if (currentTimeMs - getWeatherTimestamp() < CACHE_EXPIRATION_MS) {
-      console.log("Using cached weather data");
-      return weatherCache;
-    }
-  }
-
-  console.log("Fetching fresh weather data");
-  const weatherParams = new URLSearchParams({
-    latitude: location.lat,
-    longitude: location.lon,
-    current:
-      "temperature_2m,relative_humidity_2m,cloud_cover,wind_speed_10m,wind_direction_10m,precipitation_probability,dew_point_2m",
-    hourly:
-      "precipitation_probability,dew_point_2m,temperature_2m,relative_humidity_2m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,wind_speed_10m,wind_direction_10m",
-    daily: "sunrise,sunset",
-    timezone: "auto",
-    forecast_days: 7,
-    models: "best_match",
-  });
-
-  try {
-    const response = await fetch(
-      `${OPEN_METEO_API_BASE_URL}?${weatherParams.toString()}`,
-    );
-
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
-    }
-
-    const weatherData = await response.json();
-
-    if (!weatherData?.daily?.sunset) {
-      throw new Error("Invalid weather data format");
-    }
-
-    localStorage.setItem(CACHE_TIMESTAMP_KEY, new Date().getTime());
-    localStorage.setItem(CACHE_KEY, JSON.stringify(weatherData));
-    return weatherData;
-  } catch (error) {
-    console.error("Error loading weather data:", error);
-    throw error;
-  }
 }
 
 function renderHourlyForecast(forecast) {
@@ -217,11 +144,11 @@ async function displayLocationWeather(location) {
 
     locationInfoElement.innerHTML = html`
       <h1>${location.name}</h1>
-      <p>
+      <small>
         Dernière mise à jour :
         ${formatTimeHHMM(new Date(parseInt(getWeatherTimestamp()))) ||
         new Date(getWeatherTimestamp())}
-      </p>
+      </small>
       <p>
         Nuit astro : ${formatTimeHHMM(eveningSunsetTime)} -
         ${formatTimeHHMM(morningSunriseTime)}

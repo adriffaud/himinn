@@ -43,3 +43,46 @@ export function calculateAstronomicalNightPeriod(weatherData) {
 
   return { eveningSunsetTime, morningSunriseTime };
 }
+
+function calculateSeeingIndex(temperature, dewPoint, windSpeed, humidity) {
+  const tempWeight = 0.25;
+  const windWeight = 0.4;
+  const humidityWeight = 0.15;
+  const dewPointWeight = 0.2;
+
+  const tempDifference = Math.abs(temperature - dewPoint);
+
+  const tempFactor = Math.max(0.1, Math.min(1, (15 - tempDifference) / 15));
+  const windFactor = Math.max(0.1, Math.min(1, 1 - windSpeed / 25));
+  const humidityFactor = Math.max(0.1, Math.min(1, 1 - humidity / 100));
+  const dewPointFactor = Math.max(0.1, Math.min(1, (10 - tempDifference) / 10));
+
+  const weightedIndex =
+    tempWeight * tempFactor +
+    windWeight * windFactor +
+    humidityWeight * humidityFactor +
+    dewPointWeight * dewPointFactor;
+
+  return Math.round(Math.max(1, weightedIndex * 5));
+}
+
+export function calculateAverageSeeingIndex(forecast) {
+  const { totalIndex, count } = forecast.reduce(
+    (acc, { temperature, windSpeed, humidity, dewPoint }) => {
+      const seeingIndex = calculateSeeingIndex(
+        temperature,
+        dewPoint,
+        windSpeed,
+        humidity,
+      );
+
+      return {
+        totalIndex: acc.totalIndex + seeingIndex,
+        count: acc.count + 1,
+      };
+    },
+    { totalIndex: 0, count: 0 },
+  );
+
+  return count > 0 ? Math.round(totalIndex / count) : 0;
+}

@@ -1,4 +1,8 @@
 import constants from "./constants.js";
+import {
+  calculateAstronomicalNightPeriod,
+  calculateAverageSeeingIndex,
+} from "./astro.js";
 
 const {
   OPEN_METEO_API_BASE_URL,
@@ -59,10 +63,125 @@ export async function getWeatherData(location) {
   }
 }
 
-export function calculateExtremeCloudCover(nightForecast) {
-  if (nightForecast.length === 0) {
-    return 0;
+function convertToHourlyForecast(weatherData) {
+  return weatherData.hourly.time.map((time, index) => ({
+    dateTime: new Date(time),
+    hour: new Date(time).getHours(),
+    clouds: weatherData.hourly.cloud_cover[index],
+    clouds_low: weatherData.hourly.cloud_cover_low[index],
+    clouds_mid: weatherData.hourly.cloud_cover_mid[index],
+    clouds_high: weatherData.hourly.cloud_cover_high[index],
+    temperature: weatherData.hourly.temperature_2m[index],
+    windSpeed: weatherData.hourly.wind_speed_10m[index],
+    windDirection: weatherData.hourly.wind_direction_10m[index],
+    humidity: weatherData.hourly.relative_humidity_2m[index],
+    dewPoint: weatherData.hourly.dew_point_2m[index],
+    precipitation: weatherData.hourly.precipitation_probability[index],
+  }));
+}
+
+function calculateWindDirectionAverage(forecasts) {
+  const windDirection = forecasts
+    .map((forecast) => forecast.windDirection)
+    .filter((value) => value !== null);
+
+  const x = windDirection.reduce(
+    (acc, direction) => acc + Math.cos((direction * Math.PI) / 180),
+    0,
+  );
+  const y = windDirection.reduce(
+    (acc, direction) => acc + Math.sin((direction * Math.PI) / 180),
+    0,
+  );
+
+  const averageDirection = Math.atan2(y, x) * (180 / Math.PI);
+  const roundedDirection = Math.round(averageDirection + 360) % 360;
+
+  if (roundedDirection === null || isNaN(roundedDirection)) {
+    return "N/A";
   }
 
-  return 0;
+  const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+  const directionIndex = Math.floor((roundedDirection + 22.5) / 45) % 8;
+  return directions[directionIndex];
+}
+
+function getExtremeCloudCover(nightForecast) {
+  return Math.max(...nightForecast.map((forecast) => forecast.clouds));
+}
+
+function getMaxPrecipitationProbability(nightForecast) {
+  return Math.max(...nightForecast.map((forecast) => forecast.precipitation));
+}
+
+function getFilteredHourlyForecast(hourlyForecast) {
+  return hourlyForecast
+    .filter(
+      (forecast) =>
+        forecast.dateTime >= new Date() ||
+        forecast.dateTime.getHours() === new Date().getHours(),
+    )
+    .slice(0, 24);
+}
+
+function filterNightForecast(
+  hourlyForecast,
+  eveningSunsetTime,
+  morningSunriseTime,
+) {
+  return hourlyForecast.filter(
+    ({ dateTime }) =>
+      dateTime >= eveningSunsetTime && dateTime <= morningSunriseTime,
+  );
+}
+
+function calculateNightlyAverage(forecast, key) {
+  const validValues = forecast.filter((item) => item[key] !== null);
+  if (validValues.length === 0) return null;
+
+  const sum = validValues.reduce((acc, item) => acc + item[key], 0);
+  return Math.floor(Math.round(sum / validValues.length) * 10) / 10;
+}
+
+export function processWeatherData(weatherData) {
+  const hourlyForecast = convertToHourlyForecast(weatherData);
+
+  const { eveningSunsetTime, morningSunriseTime } =
+    calculateAstronomicalNightPeriod(weatherData);
+
+  const nightForecast = filterNightForecast(
+    hourlyForecast,
+    eveningSunsetTime,
+    morningSunriseTime,
+  );
+
+  const extremeCloudCover = getExtremeCloudCover(nightForecast);
+  const nightTemperature = calculateNightlyAverage(
+    nightForecast,
+    "temperature",
+  );
+  const nightHumidity = calculateNightlyAverage(nightForecast, "humidity");
+  const nightWindSpeed = calculateNightlyAverage(nightForecast, "windSpeed");
+  const windDirection = calculateWindDirectionAverage(nightForecast);
+  const nightDewPoint = calculateNightlyAverage(nightForecast, "dewPoint");
+  const maxPrecipitationProbability =
+    getMaxPrecipitationProbability(nightForecast);
+  const seeingIndex = calculateAverageSeeingIndex(nightForecast);
+  const filteredHourlyForecast = getFilteredHourlyForecast(hourlyForecast);
+
+  return {
+    hourlyForecast: filteredHourlyForecast,
+    nightData: {
+      extremeCloudCover,
+      nightTemperature,
+      nightHumidity,
+      nightWindSpeed,
+      windDirection,
+      nightDewPoint,
+      maxPrecipitationProbability,
+      seeingIndex,
+      eveningSunsetTime,
+      morningSunriseTime,
+    },
+  };
 }

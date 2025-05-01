@@ -1,6 +1,6 @@
 import { debounce, formatTime, html } from "./utils.js";
 import { getLocations } from "./location.js";
-import { getWeatherData, calculateExtremeCloudCover } from "./weather.js";
+import { getWeatherData, processWeatherData } from "./weather.js";
 import { calculateAstronomicalNightPeriod } from "./astro.js";
 import constants from "./constants.js";
 
@@ -42,39 +42,12 @@ async function displayLocationWeather(location) {
 
   try {
     const weatherData = await getWeatherData(location);
-
-    const hourlyForecast = weatherData.hourly.time.map((time, index) => ({
-      dateTime: new Date(time),
-      hour: new Date(time).getHours(),
-      clouds: weatherData.hourly.cloud_cover[index],
-      clouds_low: weatherData.hourly.cloud_cover_low[index],
-      clouds_mid: weatherData.hourly.cloud_cover_mid[index],
-      clouds_high: weatherData.hourly.cloud_cover_high[index],
-      temperature: weatherData.hourly.temperature_2m[index],
-      windSpeed: weatherData.hourly.wind_speed_10m[index],
-      windDirection: weatherData.hourly.wind_direction_10m[index],
-      humidity: weatherData.hourly.relative_humidity_2m[index],
-      dewPoint: weatherData.hourly.dew_point_2m[index],
-      precipitation: weatherData.hourly.precipitation_probability[index],
-    }));
+    const { hourlyForecast, nightData } = processWeatherData(weatherData);
 
     const { eveningSunsetTime, morningSunriseTime } =
       calculateAstronomicalNightPeriod(weatherData);
 
-    const nightForecast = hourlyForecast.filter(
-      ({ dateTime }) =>
-        dateTime >= eveningSunsetTime && dateTime <= morningSunriseTime,
-    );
-
-    const extremeCloudCover = calculateExtremeCloudCover(nightForecast);
-    console.log({ nightForecast, extremeCloudCover });
-
-    const hourlyTable = hourlyForecast
-      .filter((forecast) => forecast.dateTime >= new Date())
-      .slice(0, 24)
-      .map(renderHourlyForecast)
-      .join("");
-
+    const hourlyTable = hourlyForecast.map(renderHourlyForecast).join("");
     const cacheTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
 
     locationInfoElement.innerHTML = html`
@@ -82,6 +55,19 @@ async function displayLocationWeather(location) {
       <small>
         Last update: ${formatTime(new Date(parseInt(cacheTimestamp)))}
       </small>
+      <p>Cloud cover: ${nightData.extremeCloudCover.toString()}%</p>
+      <p>Seeing: ${nightData.seeingIndex.toString()}/5</p>
+      <p>
+        Wind: ${nightData.nightWindSpeed.toString()}km/h
+        (${nightData.windDirection})
+      </p>
+      <p>Humidity: ${nightData.nightHumidity.toString()}%</p>
+      <p>Temperature: ${nightData.nightTemperature.toString()}°C</p>
+      <p>Dew point: ${nightData.nightDewPoint.toString()}°C</p>
+      <p>
+        Precipitation probability:
+        ${nightData.maxPrecipitationProbability.toString()}%
+      </p>
       <p>
         Night period: ${formatTime(eveningSunsetTime)} -
         ${formatTime(morningSunriseTime)}

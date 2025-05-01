@@ -55,24 +55,27 @@ async function displayLocationWeather(location) {
       <small>
         Last update: ${formatTime(new Date(parseInt(cacheTimestamp)))}
       </small>
-      <p>Cloud cover: ${nightData.extremeCloudCover.toString()}%</p>
-      <p>Seeing: ${nightData.seeingIndex.toString()}/5</p>
-      <p>
-        Wind: ${nightData.nightWindSpeed.toString()}km/h
-        (${nightData.windDirection})
-      </p>
-      <p>Humidity: ${nightData.nightHumidity.toString()}%</p>
-      <p>Temperature: ${nightData.nightTemperature.toString()}°C</p>
-      <p>Dew point: ${nightData.nightDewPoint.toString()}°C</p>
-      <p>
-        Precipitation probability:
-        ${nightData.maxPrecipitationProbability.toString()}%
-      </p>
+      <div class="night-overview">
+        <p>Cloud cover: ${nightData.extremeCloudCover.toString()}%</p>
+        <div>
+          <p>Seeing: ${nightData.seeingIndex.toString()}/5</p>
+          <p>
+            Wind: ${nightData.nightWindSpeed.toString()}km/h
+            (${nightData.windDirection})
+          </p>
+          <p>Humidity: ${nightData.nightHumidity.toString()}%</p>
+          <p>Temperature: ${nightData.nightTemperature.toString()}°C</p>
+          <p>Dew point: ${nightData.nightDewPoint.toString()}°C</p>
+          <p>
+            Precipitation probability:
+            ${nightData.maxPrecipitationProbability.toString()}%
+          </p>
+        </div>
+      </div>
       <p>
         Night period: ${formatTime(eveningSunsetTime)} -
         ${formatTime(morningSunriseTime)}
       </p>
-      <div class="night-overview"></div>
       <table class="hourly-forecast">
         <thead>
           <tr>

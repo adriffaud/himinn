@@ -1,0 +1,113 @@
+:root {
+    --ctp-base: #24273a;
+    --ctp-mantle: #1e2030;
+    --ctp-crust: #181926;
+    --ctp-text: #cad3f5;
+    --ctp-subtext1: #b8c0e0;
+    --ctp-subtext0: #a5adcb;
+    --ctp-overlay2: #939ab7;
+    --ctp-overlay1: #8087a2;
+    --ctp-overlay0: #6e738d;
+    --ctp-surface2: #5b6078;
+    --ctp-surface1: #494d64;
+    --ctp-surface0: #363a4f;
+    --ctp-blue: #8aadf4;
+    --ctp-lavender: #b7bdf8;
+    --ctp-rosewater: #f4dbd6;
+    --ctp-flamingo: #f0c6c6;
+    --ctp-pink: #f5bde6;
+    --ctp-mauve: #c6a0f6;
+    --ctp-red: #ed8796;
+    --ctp-maroon: #ee99a0;
+    --ctp-peach: #f5a97f;
+    --ctp-yellow: #eed49f;
+    --ctp-green: #a6da95;
+    --ctp-teal: #8bd5ca;
+    --ctp-sky: #91d7e3;
+    --ctp-sapphire: #7dc4e4;
+}
+
+body {
+    margin: 2.5rem auto;
+    max-width: 900px;
+    line-height: 1.6;
+    font-size: 1.12rem;
+    color: var(--ctp-text);
+    background-color: var(--ctp-base);
+    padding: 0 0.5rem;
+    display: flex;
+    flex-direction: column;
+
+    @media (max-width: 600px) {
+        margin: 0.5rem auto;
+    }
+}
+
+h1,
+h2,
+h3 {
+    line-height: 1.2;
+    color: var(--ctp-rosewater);
+}
+
+#place_search {
+    height: 2.5em;
+    background-color: var(--ctp-surface0);
+    color: var(--ctp-text);
+    border: 1px solid var(--ctp-overlay0);
+    border-radius: 0.25rem;
+    padding: 0 0.5rem;
+
+    @media (min-width: 600px) {
+        width: 80%;
+        margin: auto;
+    }
+}
+
+#result ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0.5rem 0;
+    background-color: var(--ctp-surface0);
+    border-radius: 0.35rem;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+table.hourly-forecast {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.25rem 0;
+
+    @media (max-width: 600px) {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    & th,
+    & td {
+        border: 1px solid var(--ctp-surface1);
+        padding: 0.5rem;
+        text-align: center;
+
+        @media (max-width: 600px) {
+            padding: 0.3rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    & th {
+        background-color: var(--ctp-surface0);
+        font-weight: bold;
+        color: var(--ctp-lavender);
+    }
+
+    & tr:nth-child(even) {
+        background-color: var(--ctp-mantle);
+    }
+
+    & tr:hover {
+        background-color: var(--ctp-surface1);
+    }
+}

@@ -4,9 +4,9 @@ import {
   html,
   getWeatherTimestamp,
 } from "./utils.js";
-import { getWeatherData } from "./weather.js";
-
-const PHOTON_API_BASE_URL = "https://photon.komoot.io/api";
+import { getLocations } from "./location.js";
+import { getWeatherData, calculateExtremeCloudCover } from "./weather.js";
+import { calculateAstronomicalNightPeriod } from "./astro.js";
 
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
 
@@ -48,59 +48,6 @@ function renderHourlyForecast(forecast) {
       <td>${forecast.dewPoint}°C</td>
     </tr>
   `;
-}
-
-function calculateAstronomicalNightPeriod(weatherData) {
-  const currentDateTime = new Date();
-
-  // Calculate astronomical dusk (18 degrees below horizon after sunset)
-  // For astronomical purposes, dusk is ~2 hours after sunset
-  let eveningSunsetTime = new Date(weatherData.daily.sunset[0]);
-  const ASTRONOMICAL_DUSK_OFFSET_MS = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
-  eveningSunsetTime = new Date(
-    eveningSunsetTime.getTime() + ASTRONOMICAL_DUSK_OFFSET_MS,
-  );
-
-  // Calculate astronomical dawn (18 degrees below horizon before sunrise)
-  // For astronomical purposes, dawn is ~2 hours before sunrise
-  let morningSunriseTime = new Date(weatherData.daily.sunrise[1]);
-  const ASTRONOMICAL_DAWN_OFFSET_MS = -2 * 60 * 60 * 1000; // -2 hours in milliseconds
-  morningSunriseTime = new Date(
-    morningSunriseTime.getTime() + ASTRONOMICAL_DAWN_OFFSET_MS,
-  );
-
-  // If we're currently in the astronomical night period, use today's sunset and tomorrow's sunrise
-  if (
-    currentDateTime > eveningSunsetTime &&
-    currentDateTime < morningSunriseTime
-  ) {
-    // Keep the times as calculated - we're in the astronomical night
-    console.log("Currently in astronomical night");
-  } else if (currentDateTime > morningSunriseTime) {
-    // If we're past dawn, use tonight's sunset and tomorrow's sunrise
-    eveningSunsetTime = new Date(weatherData.daily.sunset[0]);
-    eveningSunsetTime = new Date(
-      eveningSunsetTime.getTime() + ASTRONOMICAL_DUSK_OFFSET_MS,
-    );
-
-    // Use tomorrow's sunrise if available, otherwise keep today's
-    if (weatherData.daily.sunrise.length > 1) {
-      morningSunriseTime = new Date(weatherData.daily.sunrise[1]);
-      morningSunriseTime = new Date(
-        morningSunriseTime.getTime() + ASTRONOMICAL_DAWN_OFFSET_MS,
-      );
-    }
-  }
-
-  return { eveningSunsetTime, morningSunriseTime };
-}
-
-function calculateExtremeCloudCover(nightForecast) {
-  if (nightForecast.length === 0) {
-    return 0;
-  }
-
-  return 0;
 }
 
 async function displayLocationWeather(location) {
@@ -185,44 +132,23 @@ async function handleLocationSearch(event) {
   }
 
   searchResultsContainer.textContent = "Loading...";
-
-  const params = new URLSearchParams({
-    q: event.target.value,
-    lang: "fr",
-    limit: 10,
-  });
-  params.append("osm_tag", "place:city");
-  params.append("osm_tag", "place:town");
-  params.append("osm_tag", "place:village");
-
-  const response = await fetch(`${PHOTON_API_BASE_URL}?${params.toString()}`);
-  const searchResults = await response.json();
+  const results = await getLocations(event.target.value);
 
   const locationListElement = document.createElement("ul");
-  searchResults.features
-    .map((locationResult) => {
-      const name = locationResult.properties.name;
-      const countrycode = locationResult.properties.countrycode;
-      const lat = locationResult.geometry.coordinates[1];
-      const lon = locationResult.geometry.coordinates[0];
+  results.forEach((locationItem) => {
+    const li = document.createElement("li");
+    const link = document.createElement("a");
+    link.href = "#";
+    link.textContent = `${locationItem.name} (${locationItem.countrycode})`;
 
-      return { name, countrycode, lat, lon };
-    })
-    .sort((a, b) => a.countrycode.localeCompare(b.countrycode))
-    .forEach((locationItem) => {
-      const li = document.createElement("li");
-      const link = document.createElement("a");
-      link.href = "#";
-      link.textContent = `${locationItem.name} (${locationItem.countrycode})`;
-
-      link.addEventListener("click", (e) => {
-        e.preventDefault();
-        selectLocation(locationItem);
-      });
-
-      li.appendChild(link);
-      locationListElement.appendChild(li);
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      selectLocation(locationItem);
     });
+
+    li.appendChild(link);
+    locationListElement.appendChild(li);
+  });
 
   searchResultsContainer.innerHTML = "";
   searchResultsContainer.appendChild(locationListElement);

@@ -56,3 +56,11 @@ export async function getWeatherData(location) {
     throw error;
   }
 }
+
+export function calculateExtremeCloudCover(nightForecast) {
+  if (nightForecast.length === 0) {
+    return 0;
+  }
+
+  return 0;
+}

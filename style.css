@@ -53,6 +53,7 @@ h3 {
 .location {
     width: 100%;
     margin: 0 auto;
+    position: relative;
 
     @media (min-width: 600px) {
         width: 80%;
@@ -60,45 +61,65 @@ h3 {
 
     & input {
         width: 100%;
+        font-size: 1em;
         height: 2.5em;
         background-color: var(--ctp-surface0);
         color: var(--ctp-text);
         border: 1px solid var(--ctp-overlay0);
-        border-radius: 0.35rem;
+        border-radius: 4px 4px 0 0;
         padding: 0.5rem;
         box-sizing: border-box;
+
+        &:not(:focus),
+        .location:not(:has(ul)) & {
+            border-radius: 4px;
+        }
+
+        &:focus {
+            outline: none;
+            border-color: var(--ctp-blue);
+        }
+
+        .location:has(ul) & {
+            border-bottom: none;
+        }
     }
 
     & ul {
-        width: 100%;
-        list-style-type: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        margin-top: 0;
         padding: 0;
-        margin: 0.5rem 0;
+        list-style: none;
         background-color: var(--ctp-surface0);
-        border: 1px solid var(--ctp-overlay0);
-        border-radius: 0.35rem;
-        overflow: hidden;
+        border: 1px solid var(--ctp-blue);
+        border-top: none;
+        border-radius: 0 0 4px 4px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        max-height: 300px;
+        overflow-y: auto;
     }
 
     & li {
-        padding: 0.5rem;
+        padding: 8px 12px;
         height: 2.5em;
         display: flex;
         align-items: center;
         box-sizing: border-box;
-        color: var(--ctp-blue);
+        color: var(--ctp-mauve);
+        cursor: pointer;
 
         &:hover {
-            color: var(--ctp-lavender);
             background-color: var(--ctp-surface1);
-            cursor: pointer;
         }
 
         & a {
+            display: block;
             color: inherit;
             text-decoration: none;
-            transition: color 0.2s ease;
         }
     }
 }
@@ -113,7 +134,7 @@ h3 {
     border-radius: 0.5rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 
-    & > p {
+    &>p {
         text-align: center;
         font-weight: bold;
         font-size: 1.15rem;

@@ -6,9 +6,10 @@ import constants from "./constants.js";
 
 const { REFRESH_INTERVAL_MS, CACHE_TIMESTAMP_KEY } = constants;
 
-const searchResultsContainer = document.getElementById("result");
+const locationContainer = document.querySelector(".location");
 const locationSearchInput = document.getElementById("search");
 let refreshTimerId = null;
+let locationListElement = null;
 
 function startRefreshTimer(location) {
   if (refreshTimerId) {
@@ -100,22 +101,30 @@ async function displayLocationWeather(location) {
   }
 }
 
+function clearSearchResults() {
+  if (locationListElement && locationListElement.parentNode) {
+    locationListElement.parentNode.removeChild(locationListElement);
+    locationListElement = null;
+  }
+}
+
 function selectLocation(location) {
   localStorage.setItem("selectedLocation", JSON.stringify(location));
-  searchResultsContainer.textContent = "";
+  clearSearchResults();
   displayLocationWeather(location);
+  startRefreshTimer(location);
 }
 
 async function handleLocationSearch(event) {
+  clearSearchResults();
+
   if (event.target.value === "") {
-    searchResultsContainer.textContent = "";
     return;
   }
 
-  searchResultsContainer.textContent = "Loading...";
   const results = await getLocations(event.target.value);
 
-  const locationListElement = document.createElement("ul");
+  locationListElement = document.createElement("ul");
   results.forEach((locationItem) => {
     const li = document.createElement("li");
     const link = document.createElement("a");
@@ -131,8 +140,7 @@ async function handleLocationSearch(event) {
     locationListElement.appendChild(li);
   });
 
-  searchResultsContainer.innerHTML = "";
-  searchResultsContainer.appendChild(locationListElement);
+  locationContainer.appendChild(locationListElement);
 }
 
 locationSearchInput.addEventListener(

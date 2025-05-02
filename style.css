@@ -140,9 +140,16 @@ h3 {
         font-size: 1.15rem;
         margin-top: 0;
         margin-bottom: 1rem;
-        color: var(--ctp-mauve);
         padding-bottom: 0.75rem;
         border-bottom: 1px solid var(--ctp-surface0);
+
+        &.red {
+            color: var(--ctp-red);
+        }
+
+        &.green {
+            color: var(--ctp-green);
+        }
     }
 
     & div {

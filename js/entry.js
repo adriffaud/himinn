@@ -57,7 +57,7 @@ async function displayLocationWeather(location) {
         Last update: ${formatTime(new Date(parseInt(cacheTimestamp)))}
       </small>
       <div class="night-overview">
-        <p>Cloud cover: ${nightData.extremeCloudCover.toString()}%</p>
+        <p class=${nightData.extremeCloudCover >= 50 ? "red" : "green"}>Cloud cover: ${nightData.extremeCloudCover.toString()}%</p>
         <div>
           <p>Seeing: ${nightData.seeingIndex.toString()}/5</p>
           <p>

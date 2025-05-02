@@ -7,7 +7,7 @@ import constants from "./constants.js";
 const { REFRESH_INTERVAL_MS, CACHE_TIMESTAMP_KEY } = constants;
 
 const searchResultsContainer = document.getElementById("result");
-const locationSearchInput = document.getElementById("place_search");
+const locationSearchInput = document.getElementById("search");
 let refreshTimerId = null;
 
 function startRefreshTimer(location) {
@@ -37,7 +37,7 @@ function renderHourlyForecast(forecast) {
 }
 
 async function displayLocationWeather(location) {
-  const locationInfoElement = document.getElementById("place");
+  const locationInfoElement = document.getElementById("content");
   locationInfoElement.innerHTML = `<h1>${location.name}</h1><p>Loading...</p>`;
 
   try {
@@ -121,8 +121,8 @@ async function handleLocationSearch(event) {
     const link = document.createElement("a");
     link.href = "#";
     link.textContent = `${locationItem.name} (${locationItem.countrycode})`;
-
-    link.addEventListener("click", (e) => {
+    link.addEventListener("click", (e) => e.preventDefault());
+    li.addEventListener("click", (e) => {
       e.preventDefault();
       selectLocation(locationItem);
     });

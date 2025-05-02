@@ -11,6 +11,19 @@ function mapLocationResult(location) {
   return { name, countrycode, lat, lon };
 }
 
+/**
+ * Fetches locations from Photon API based on the provided query.
+ * Searches for cities, towns, and villages.
+ *
+ * @async
+ * @param {string} query - The search query for locations.
+ * @returns {Promise<Array<Object>>} Promise resolving to an array of location objects,
+ *                                   sorted by country code.
+ * @property {string} name - The name of the location.
+ * @property {string} countrycode - The country code of the location.
+ * @property {number} lat - The latitude of the location.
+ * @property {number} lon - The longitude of the location.
+ */
 export async function getLocations(query) {
   const params = new URLSearchParams({
     q: query,

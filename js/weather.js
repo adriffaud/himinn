@@ -11,6 +11,15 @@ const {
   CACHE_TIMESTAMP_KEY,
 } = constants;
 
+/**
+ * Fetches weather data for a specific location
+ *
+ * @param {Object} location - Object containing location coordinates
+ * @param {number} location.lat - Latitude of the location
+ * @param {number} location.lon - Longitude of the location
+ * @returns {Promise<Object>} - Promise resolving to weather data from the API
+ * @throws {Error} - Throws if API request fails or returns invalid data
+ */
 export async function getWeatherData(location) {
   const cachedData = localStorage.getItem(CACHE_KEY);
 
@@ -143,6 +152,24 @@ function calculateNightlyAverage(forecast, key) {
   return Math.floor(Math.round(sum / validValues.length) * 10) / 10;
 }
 
+/**
+ * Processes raw weather data into structured forecast information
+ *
+ * @param {Object} weatherData - Raw weather data from the API
+ * @returns {Object} - Processed weather data containing hourly forecast and night data
+ * @returns {Array} - returns.hourlyForecast - Array of hourly weather forecasts
+ * @returns {Object} - returns.nightData - Object containing aggregated night conditions
+ * @returns {number} - returns.nightData.extremeCloudCover - Maximum cloud cover during night
+ * @returns {number} - returns.nightData.nightTemperature - Average night temperature
+ * @returns {number} - returns.nightData.nightHumidity - Average night humidity
+ * @returns {number} - returns.nightData.nightWindSpeed - Average wind speed during night
+ * @returns {string} - returns.nightData.windDirection - Dominant wind direction during night
+ * @returns {number} - returns.nightData.nightDewPoint - Average dew point during night
+ * @returns {number} - returns.nightData.maxPrecipitationProbability - Maximum precipitation chance
+ * @returns {number} - returns.nightData.seeingIndex - Astronomical seeing conditions index
+ * @returns {Date} - returns.nightData.eveningSunsetTime - Time of sunset
+ * @returns {Date} - returns.nightData.morningSunriseTime - Time of next sunrise
+ */
 export function processWeatherData(weatherData) {
   const hourlyForecast = convertToHourlyForecast(weatherData);
 

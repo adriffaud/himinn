@@ -2,6 +2,20 @@ import constants from "./constants.js";
 
 const { ASTRONOMICAL_DAWN_OFFSET_MS, ASTRONOMICAL_DUSK_OFFSET_MS } = constants;
 
+/**
+ * Calculates the astronomical night period based on sunrise and sunset data.
+ * Astronomical night is defined as the period between astronomical dusk
+ * (when the sun is 18° below the horizon after sunset) and astronomical dawn
+ * (when the sun is 18° below the horizon before sunrise).
+ *
+ * @param {Object} weatherData - Weather data containing sunrise and sunset times
+ * @param {Object} weatherData.daily - Daily weather information
+ * @param {Array<string>} weatherData.daily.sunset - Array of sunset timestamps
+ * @param {Array<string>} weatherData.daily.sunrise - Array of sunrise timestamps
+ * @returns {Object} Object containing evening sunset (dusk) and morning sunrise (dawn) times
+ * @returns {Date} eveningSunsetTime - The time of astronomical dusk
+ * @returns {Date} morningSunriseTime - The time of astronomical dawn
+ */
 export function calculateAstronomicalNightPeriod(weatherData) {
   const currentDateTime = new Date();
 
@@ -66,6 +80,18 @@ function calculateSeeingIndex(temperature, dewPoint, windSpeed, humidity) {
   return Math.round(Math.max(1, weightedIndex * 5));
 }
 
+/**
+ * Calculates the average seeing index for a set of forecast data points.
+ * The seeing index is a measure of astronomical viewing conditions based on
+ * temperature, wind speed, humidity, and dew point.
+ *
+ * @param {Array<Object>} forecast - Array of forecast data points
+ * @param {number} forecast[].temperature - Temperature in degrees (likely Celsius)
+ * @param {number} forecast[].windSpeed - Wind speed (likely in m/s)
+ * @param {number} forecast[].humidity - Relative humidity percentage
+ * @param {number} forecast[].dewPoint - Dew point temperature in degrees (likely Celsius)
+ * @returns {number} Average seeing index on a scale of 1-5, where higher values indicate better viewing conditions
+ */
 export function calculateAverageSeeingIndex(forecast) {
   const { totalIndex, count } = forecast.reduce(
     (acc, { temperature, windSpeed, humidity, dewPoint }) => {

@@ -4,7 +4,7 @@ import { getWeatherData, processWeatherData } from "./weather.js";
 import { calculateAstronomicalNightPeriod } from "./astro.js";
 import constants from "./constants.js";
 
-const { REFRESH_INTERVAL_MS, CACHE_TIMESTAMP_KEY } = constants;
+const { REFRESH_INTERVAL_MS, CACHE_KEY, CACHE_TIMESTAMP_KEY } = constants;
 
 const locationContainer = document.querySelector(".location");
 const locationSearchInput = document.getElementById("search");
@@ -109,6 +109,9 @@ function clearSearchResults() {
 }
 
 function selectLocation(location) {
+  localStorage.removeItem(CACHE_KEY);
+  localStorage.removeItem(CACHE_TIMESTAMP_KEY);
+
   localStorage.setItem("selectedLocation", JSON.stringify(location));
   clearSearchResults();
   displayLocationWeather(location);

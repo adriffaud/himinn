@@ -58,7 +58,18 @@ export function calculateAstronomicalNightPeriod(weatherData) {
   return { eveningSunsetTime, morningSunriseTime };
 }
 
-function calculateSeeingIndex(temperature, dewPoint, windSpeed, humidity) {
+/**
+ * Calculates a seeing index on a scale from 1 to 5 based on temperature,
+ * dew point, wind speed, and humidity. Higher values indicate better
+ * atmospheric seeing conditions.
+ *
+ * @param {number} temperature - The current air temperature in degrees Celsius
+ * @param {number} dewPoint - The current dew point in degrees Celsius
+ * @param {number} windSpeed - The current wind speed in meters per second
+ * @param {number} humidity - The current relative humidity as a percentage (0–100)
+ * @returns {number} An integer index from 1 (poor seeing) to 5 (excellent seeing)
+ */
+export function calculateSeeingIndex(temperature, dewPoint, windSpeed, humidity) {
   const tempWeight = 0.25;
   const windWeight = 0.4;
   const humidityWeight = 0.15;
@@ -86,11 +97,11 @@ function calculateSeeingIndex(temperature, dewPoint, windSpeed, humidity) {
  * temperature, wind speed, humidity, and dew point.
  *
  * @param {Array<Object>} forecast - Array of forecast data points
- * @param {number} forecast[].temperature - Temperature in degrees (likely Celsius)
- * @param {number} forecast[].windSpeed - Wind speed (likely in m/s)
+ * @param {number} forecast[].temperature - Temperature in degrees Celsius
+ * @param {number} forecast[].windSpeed - Wind speed in meters per second
  * @param {number} forecast[].humidity - Relative humidity percentage
- * @param {number} forecast[].dewPoint - Dew point temperature in degrees (likely Celsius)
- * @returns {number} Average seeing index on a scale of 1-5, where higher values indicate better viewing conditions
+ * @param {number} forecast[].dewPoint - Dew point temperature in degrees Celsius
+ * @returns {number} Average seeing index from 1 (poor seeing) to 5 (excellent seeing)
  */
 export function calculateAverageSeeingIndex(forecast) {
   const { totalIndex, count } = forecast.reduce(

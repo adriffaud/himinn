@@ -2,6 +2,7 @@ import constants from "./constants.js";
 import {
   calculateAstronomicalNightPeriod,
   calculateAverageSeeingIndex,
+  calculateSeeingIndex,
 } from "./astro.js";
 
 const {
@@ -194,7 +195,14 @@ export function processWeatherData(weatherData) {
   const maxPrecipitationProbability =
     getMaxPrecipitationProbability(nightForecast);
   const seeingIndex = calculateAverageSeeingIndex(nightForecast);
-  const filteredHourlyForecast = getFilteredHourlyForecast(hourlyForecast);
+  const filteredHourlyForecast = getFilteredHourlyForecast(hourlyForecast).map(forecast => {
+    const { temperature, dewPoint, windSpeed, humidity } = forecast;
+
+    return {
+      ...forecast,
+      seeing: calculateSeeingIndex(temperature, dewPoint, windSpeed, humidity)
+    };
+  });
 
   return {
     hourlyForecast: filteredHourlyForecast,

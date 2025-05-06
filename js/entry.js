@@ -28,7 +28,7 @@ function renderHourlyForecast(forecast) {
       <td>${forecast.hour.toString()}h</td>
       <td>${forecast.clouds.toString()}%</td>
       <td>${forecast.precipitation.toString()}%</td>
-      <td style="display:none">TODO</td>
+      <td>${forecast.seeing}/5</td>
       <td>${forecast.windSpeed}km/h</td>
       <td>${forecast.humidity}%</td>
       <td>${forecast.temperature}°C</td>
@@ -83,7 +83,7 @@ async function displayLocationWeather(location) {
             <th>Hour</th>
             <th>Clouds</th>
             <th>Precipitations</th>
-            <th style="display: none">Seeing</th>
+            <th>Seeing</th>
             <th>Wind</th>
             <th>Humidity</th>
             <th>Temperature</th>

@@ -1,9 +1,5 @@
 import constants from "./constants.js";
-import {
-  calculateAstronomicalNightPeriod,
-  calculateAverageSeeingIndex,
-  calculateSeeingIndex,
-} from "./astro.js";
+import { calculateAstronomicalNightPeriod } from "./astro.js";
 
 const {
   OPEN_METEO_API_BASE_URL,
@@ -194,15 +190,7 @@ export function processWeatherData(weatherData) {
   const nightDewPoint = calculateNightlyAverage(nightForecast, "dewPoint");
   const maxPrecipitationProbability =
     getMaxPrecipitationProbability(nightForecast);
-  const seeingIndex = calculateAverageSeeingIndex(nightForecast);
-  const filteredHourlyForecast = getFilteredHourlyForecast(hourlyForecast).map(forecast => {
-    const { temperature, dewPoint, windSpeed, humidity } = forecast;
-
-    return {
-      ...forecast,
-      seeing: calculateSeeingIndex(temperature, dewPoint, windSpeed, humidity)
-    };
-  });
+  const filteredHourlyForecast = getFilteredHourlyForecast(hourlyForecast);
 
   return {
     hourlyForecast: filteredHourlyForecast,
@@ -214,7 +202,6 @@ export function processWeatherData(weatherData) {
       windDirection,
       nightDewPoint,
       maxPrecipitationProbability,
-      seeingIndex,
       eveningSunsetTime,
       morningSunriseTime,
     },

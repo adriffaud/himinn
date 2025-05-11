@@ -24,11 +24,10 @@ function startRefreshTimer(location) {
 
 function renderHourlyForecast(forecast) {
   return html`
-    <tr>
+    <tr class=${forecast.clouds <= 30 ? "bg-green" : ""}>
       <td>${forecast.hour.toString()}h</td>
       <td>${forecast.clouds.toString()}%</td>
       <td>${forecast.precipitation.toString()}%</td>
-      <td>${forecast.seeing}/5</td>
       <td>${forecast.windSpeed}km/h</td>
       <td>${forecast.humidity}%</td>
       <td>${forecast.temperature}°C</td>
@@ -57,9 +56,10 @@ async function displayLocationWeather(location) {
         Last update: ${formatTime(new Date(parseInt(cacheTimestamp)))}
       </small>
       <div class="night-overview">
-        <p class=${nightData.extremeCloudCover >= 50 ? "red" : "green"}>Cloud cover: ${nightData.extremeCloudCover.toString()}%</p>
+        <p class=${nightData.extremeCloudCover >= 30 ? "red" : "green"}>
+          Cloud cover: ${nightData.extremeCloudCover.toString()}%
+        </p>
         <div>
-          <p>Seeing: ${nightData.seeingIndex.toString()}/5</p>
           <p>
             Wind: ${nightData.nightWindSpeed.toString()}km/h
             (${nightData.windDirection})
@@ -83,7 +83,6 @@ async function displayLocationWeather(location) {
             <th>Hour</th>
             <th>Clouds</th>
             <th>Precipitations</th>
-            <th>Seeing</th>
             <th>Wind</th>
             <th>Humidity</th>
             <th>Temperature</th>
